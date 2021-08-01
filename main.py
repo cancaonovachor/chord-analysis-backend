@@ -1,5 +1,6 @@
 import os
 from flask import Flask, request, make_response, jsonify
+from musicxml_chord_analysis import analyze
 
 app = Flask(__name__)
 
@@ -15,6 +16,7 @@ def upload_multipart():
     if '' == filename:
         make_response(jsonify({'result': 'filename must not empty.'}))
 
+    analyze(filename)
     return make_response(jsonify({'result': filename}))
 
 

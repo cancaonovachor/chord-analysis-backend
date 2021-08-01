@@ -116,7 +116,7 @@ def getMusicxmlPitch(score_name):
                 divisions = int(part_measures[i].find('attributes').findtext('divisions')) #４分音符を小節内で何分割して数えているかの値、
                                                                                            #divisionsは新しい値が定義されるまで小節超えて継承される
             note_list = part_measures[i].findall('note')
-            print("{}小節目".format(i+1))
+            # print("{}小節目".format(i+1))
             chord_list = []
             for j in range(len(note_list)):
                 rest = note_list[j].find('rest')
@@ -137,7 +137,7 @@ def getMusicxmlPitch(score_name):
                 if rest is not None:
                     #print("休符が{}拍分".format(bar))
                     chord_list.append([bar, "rest"])
-            print(chord_list)
+            # print(chord_list)
 
 def fractionConvert(beatStr):
     # beatStr : 1 1/2
@@ -169,7 +169,7 @@ def getChordMinimumUnit(score_name, head, tail, sameChordPass=1):
                 chord_list.append([c.measureNumber, beat, chord_name])
         else:
             chord_list.append([c.measureNumber, beat, chord_name])
-    print(chord_list)
+    # print(chord_list)
     return chord_list
 
 # 今の小節から遡ってdivisionsを特定する
@@ -250,8 +250,8 @@ def writeChord(score_name,chord_list,head,tail,chordOverwrite=1):
             if (factor_tag != 'note') & (factor_tag != 'rest') & (factor_tag != 'harmony'): #note, rest, harmony以外にもattribute等の属性がある
                 continue
             if (chord_bar - total_duration) <= 0: #chord検出位置に到達
-                print("{} - {} is write position on {}".format(chord_measure, total_duration, chord_name))
-                print("new harmony write")
+                # print("{} - {} is write position on {}".format(chord_measure, total_duration, chord_name))
+                # print("new harmony write")
                 first_part_measures[chord_measure-1].insert(j,createHarmonyElement(chord_name))
                 break
             else:                
@@ -262,13 +262,11 @@ def writeChord(score_name,chord_list,head,tail,chordOverwrite=1):
     #for i in range(len(measures)):
         #print(measures[i].find('harmony'))
 
-    
-score_name = 'nippon.musicxml'
-#score_name = 'nippon.musicxml'
-head = 1
-tail = 80
-chord_list = getChordMinimumUnit(score_name, head=head, tail=tail, sameChordPass=1)
-writeChord(score_name, chord_list, head=head, tail=tail, chordOverwrite=1)
+def analyze(score_name):   
+    head = 1
+    tail = 80
+    chord_list = getChordMinimumUnit(score_name, head=head, tail=tail, sameChordPass=1)
+    writeChord(score_name, chord_list, head=head, tail=tail, chordOverwrite=1)
 
 #getMusicxmlPitch(score_name)
 
