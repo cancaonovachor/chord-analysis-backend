@@ -154,6 +154,8 @@ def fractionConvert(beatStr):
 
 def getChordMinimumUnit(score_name, head, tail, sameChordPass=1):
     full_score = converter.parse(score_name)
+    if tail == -1:
+        tail = len(full_score.getElementsByClass(stream.Part)[0].getElementsByClass(stream.Measure))
     excerpt = full_score.measures(head, tail)
     chfy = excerpt.chordify()
     chord_list = []
@@ -264,7 +266,7 @@ def writeChord(score_name,chord_list,head,tail,chordOverwrite=1):
 
 def analyze(score_name):   
     head = 1
-    tail = 80
+    tail = -1
     chord_list = getChordMinimumUnit(score_name, head=head, tail=tail, sameChordPass=1)
     writeChord(score_name, chord_list, head=head, tail=tail, chordOverwrite=1)
 
