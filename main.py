@@ -23,9 +23,8 @@ CLOUD_STORAGE_ENDPOINT = 'http://' + \
 
 
 def upload_blob(source_file_object, destination_blob_name):
-    storage_client = storage.Client(
-        project_id, credentials=credential)
-    bucket = storage_client.bucket(CROUD_STORAGE_BUCKET)
+    storage_client = storage.Client(project_id)
+    bucket = storage_client.bucket(CLOUD_STORAGE_BUCKET)
     blob = bucket.blob(destination_blob_name)
 
     blob.upload_from_file(source_file_object, rewind=True)
