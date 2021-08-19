@@ -17,7 +17,7 @@ UPLOAD_DIR = os.getenv("UPLOAD_DIR_PATH")
 CLOUD_STORAGE_BUCKET = os.getenv("CLOUD_STORAGE_BUCKET")
 
 CLOUD_STORAGE_ENDPOINT = 'http://' + \
-    CROUD_STORAGE_BUCKET + '.storage.googleapis.com'
+    CLOUD_STORAGE_BUCKET + '.storage.googleapis.com'
 
 # ファイルをアップロードして、ファイルへのURLを返す
 
