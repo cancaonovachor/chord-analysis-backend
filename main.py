@@ -19,6 +19,13 @@ CLOUD_STORAGE_BUCKET = os.getenv("CLOUD_STORAGE_BUCKET")
 CLOUD_STORAGE_ENDPOINT = 'http://' + \
     CLOUD_STORAGE_BUCKET + '.storage.googleapis.com'
 
+ALLOWED_EXTENSIONS = {'musicxml'}
+
+
+def allowed_file(filename):
+    return '.' in filename and \
+        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 # ファイルをアップロードして、ファイルへのURLを返す
 
 
