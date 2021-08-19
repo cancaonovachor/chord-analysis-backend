@@ -21,6 +21,8 @@ CLOUD_STORAGE_ENDPOINT = 'http://' + \
 
 ALLOWED_EXTENSIONS = {'musicxml'}
 
+PROJECT_ID = os.getenv("PROJECT_ID")
+
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -30,7 +32,7 @@ def allowed_file(filename):
 
 
 def upload_blob(source_file_object, destination_blob_name):
-    storage_client = storage.Client(project_id)
+    storage_client = storage.Client(PROJECT_ID)
     bucket = storage_client.bucket(CLOUD_STORAGE_BUCKET)
     blob = bucket.blob(destination_blob_name)
 
