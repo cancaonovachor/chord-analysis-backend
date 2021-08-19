@@ -1,18 +1,21 @@
 from music21 import *
-from xml.etree import ElementTree as et # mxlは非対応
+from xml.etree import ElementTree as et  # mxlは非対応
 from fractions import Fraction as frac
 
-#### INITIAL SETUP
+# INITIAL SETUP
 # musescore directory : /Applications/MuseScore 3.app/Contents/MacOS/mscore
 # us = environment.UserSettings()
 # us.create()
 # us['musicxmlPath'] = '/Applications/MuseScore 3.app/Contents/MacOS/mscore'
 # us['musescoreDirectPNGPath'] = '/Applications/MuseScore 3.app/Contents/MacOS/mscore'
-        
-def pitch_scale(pitch,alter):
-    pitch_scale = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"]
+
+
+def pitch_scale(pitch, alter):
+    pitch_scale = ["C", "C#", "D", "D#", "E",
+                   "F", "F#", "G", "G#", "A", "A#", "B"]
     ind = pitch_scale.index(pitch)
     return pitch_scale[ind+alter]
+
 
 def getChordRoot(chord_name):
     if len(chord_name) == 1:
@@ -23,6 +26,7 @@ def getChordRoot(chord_name):
         return chord_name[0], -1
     else:
         return chord_name[0], 0
+
 
 def converChordKind(chord_kind):
     if chord_kind == 'seventh-flat-five':
@@ -35,11 +39,11 @@ def converChordKind(chord_kind):
         </degree>    
         '''
         degree = et.Element('degree')
-        degree_value = et.SubElement(degree,'degree-value')
+        degree_value = et.SubElement(degree, 'degree-value')
         degree_value.text = '5'
-        degree_alter = et.SubElement(degree,'degree-alter')
+        degree_alter = et.SubElement(degree, 'degree-alter')
         degree_alter.text = '-1'
-        degree_type = et.SubElement(degree,'degree-type')
+        degree_type = et.SubElement(degree, 'degree-type')
         degree_type.text = 'alter'
         return musicxml_kind, degree
     elif chord_kind == 'augmented-major-11th':
@@ -52,16 +56,16 @@ def converChordKind(chord_kind):
         </degree>
         '''
         degree = et.Element('degree')
-        degree_value = et.SubElement(degree,'degree-value')
+        degree_value = et.SubElement(degree, 'degree-value')
         degree_value.text = '11'
-        degree_alter = et.SubElement(degree,'degree-alter')
+        degree_alter = et.SubElement(degree, 'degree-alter')
         degree_alter.text = '0'
-        degree_type = et.SubElement(degree,'degree-type')
+        degree_type = et.SubElement(degree, 'degree-type')
         degree_type.text = 'add'
         return musicxml_kind, degree
     elif chord_kind == 'dominant-seventh':
         musicxml_kind = 'dominant'
-        degree = None      
+        degree = None
         return musicxml_kind, degree
     elif chord_kind == 'half-diminished-minor-ninth':
         musicxml_kind = 'half-diminished'
@@ -73,11 +77,11 @@ def converChordKind(chord_kind):
         </degree>
         '''
         degree = et.Element('degree')
-        degree_value = et.SubElement(degree,'degree-value')
+        degree_value = et.SubElement(degree, 'degree-value')
         degree_value.text = '9'
-        degree_alter = et.SubElement(degree,'degree-alter')
+        degree_alter = et.SubElement(degree, 'degree-alter')
         degree_alter.text = '-1'
-        degree_type = et.SubElement(degree,'degree-type')
+        degree_type = et.SubElement(degree, 'degree-type')
         degree_type.text = 'add'
         return musicxml_kind, degree
     elif chord_kind == 'half-diminished-seventh':
@@ -94,15 +98,16 @@ def converChordKind(chord_kind):
         </degree>
         '''
         degree = et.Element('degree')
-        degree_value = et.SubElement(degree,'degree-value')
+        degree_value = et.SubElement(degree, 'degree-value')
         degree_value.text = '7'
-        degree_alter = et.SubElement(degree,'degree-alter')
+        degree_alter = et.SubElement(degree, 'degree-alter')
         degree_alter.text = '1'
-        degree_type = et.SubElement(degree,'degree-type')
+        degree_type = et.SubElement(degree, 'degree-type')
         degree_type.text = 'add'
-        return musicxml_kind, degree        
+        return musicxml_kind, degree
     else:
         return chord_kind, None
+
 
 def getMusicxmlPitch(score_name):
     tree = et.parse(score_name)
@@ -113,8 +118,9 @@ def getMusicxmlPitch(score_name):
         part_measures = parts[p].findall('measure')
         for i in range(len(part_measures)):
             if part_measures[i].find('attributes').findtext('divisions') is not None:
-                divisions = int(part_measures[i].find('attributes').findtext('divisions')) #４分音符を小節内で何分割して数えているかの値、
-                                                                                           #divisionsは新しい値が定義されるまで小節超えて継承される
+                divisions = int(part_measures[i].find('attributes').findtext(
+                    'divisions'))  # ４分音符を小節内で何分割して数えているかの値、
+                # divisionsは新しい値が定義されるまで小節超えて継承される
             note_list = part_measures[i].findall('note')
             # print("{}小節目".format(i+1))
             chord_list = []
@@ -132,19 +138,20 @@ def getMusicxmlPitch(score_name):
                         pitch_str = pitch_scale(raw_pitch, int(alter)) + octave
                     else:
                         pitch_str = raw_pitch + octave
-                    #print("{}が{}拍分".format(pitch_str,bar))
+                    # print("{}が{}拍分".format(pitch_str,bar))
                     chord_list.append([bar, pitch_str])
                 if rest is not None:
-                    #print("休符が{}拍分".format(bar))
+                    # print("休符が{}拍分".format(bar))
                     chord_list.append([bar, "rest"])
             # print(chord_list)
+
 
 def fractionConvert(beatStr):
     # beatStr : 1 1/2
     beatStr_list = beatStr.split(" ")
-    if len(beatStr_list) == 1: #整数のみ
+    if len(beatStr_list) == 1:  # 整数のみ
         return int(beatStr_list[0])
-    else: #帯分数
+    else:  # 帯分数
         integer = int(beatStr_list[0])
         fraction = beatStr_list[1]
         fraction_list = fraction.split("/")
@@ -152,10 +159,12 @@ def fractionConvert(beatStr):
         denominator = int(fraction_list[1])
         return frac(numerator + denominator * integer, denominator)
 
-def getChordMinimumUnit(score_name, head, tail, sameChordPass=1):
-    full_score = converter.parse(score_name)
+
+def getChordMinimumUnit(score_url, head, tail, sameChordPass=1):
+    full_score = converter.parse(score_url)
     if tail == -1:
-        tail = len(full_score.getElementsByClass(stream.Part)[0].getElementsByClass(stream.Measure))
+        tail = len(full_score.getElementsByClass(stream.Part)
+                   [0].getElementsByClass(stream.Measure))
     excerpt = full_score.measures(head, tail)
     chfy = excerpt.chordify()
     chord_list = []
@@ -175,9 +184,11 @@ def getChordMinimumUnit(score_name, head, tail, sameChordPass=1):
     return chord_list
 
 # 今の小節から遡ってdivisionsを特定する
+
+
 def getDivisions(measures, measure_num):
     divisions = None
-    for i in range(measure_num,0,-1):
+    for i in range(measure_num, 0, -1):
         if measures[i-1].find('attributes') != None:
             divisions = measures[i-1].find('attributes').findtext('divisions')
         if divisions == None:
@@ -185,6 +196,7 @@ def getDivisions(measures, measure_num):
         else:
             break
     return int(divisions)
+
 
 def createHarmonyElement(chord_name):
     '''
@@ -204,33 +216,33 @@ def createHarmonyElement(chord_name):
         </root>
         <kind halign="center" text="M7">major-seventh</kind>
       </harmony>
-    '''   
+    '''
     harmony = et.Element('harmony')
-    root = et.SubElement(harmony,'root')
+    root = et.SubElement(harmony, 'root')
     root_step = et.SubElement(root, 'root-step')
     root_alter = et.SubElement(root, 'root-alter')
     #root_step.text, root_alter.text = getChordRoot(chord_name[0])
     root_name, alter = getChordRoot(chord_name[0])
     root_step.text = root_name
     root_alter.text = str(alter)
-    kind = et.SubElement(harmony,'kind')
+    kind = et.SubElement(harmony, 'kind')
     musicxml_kind, degree_element = converChordKind(chord_name[1])
     kind.text = musicxml_kind
     if degree_element != None:
         harmony.insert(list(harmony).index(kind)+1, degree_element)
     et.dump(harmony)
     return harmony
-    
 
-def writeChord(score_name,chord_list,head,tail,chordOverwrite=1):
 
-    tree = et.parse(score_name)
+def writeChord(score_file, chord_list, head, tail, chordOverwrite=1):
+
+    tree = et.parse(score_file)
     root = tree.getroot()
-    first_part = root.find('part') #一番最初のpartを取得
+    first_part = root.find('part')  # 一番最初のpartを取得
     first_part_measures = first_part.findall('measure')
 
     # chord_list
-    # [[13, '1', 'B'], [14, '1 1/2', 'Bsus2'], [14, '2 1/2', 'B'], [14, '3 1/2', 'Bsus'], 
+    # [[13, '1', 'B'], [14, '1 1/2', 'Bsus2'], [14, '2 1/2', 'B'], [14, '3 1/2', 'Bsus'],
     # [14, '4 1/2', 'B'], [15, '2', 'A#susaddG#,omitE#'], [15, '3', 'A#pedal'], [15, '4 1/2', 'D#susaddC#,omitA#']]
 
     if chordOverwrite == 1:
@@ -249,28 +261,27 @@ def writeChord(score_name,chord_list,head,tail,chordOverwrite=1):
 
         for j in range(factor_num):
             factor_tag = first_part_measures[chord_measure-1][j].tag
-            if (factor_tag != 'note') & (factor_tag != 'rest') & (factor_tag != 'harmony'): #note, rest, harmony以外にもattribute等の属性がある
+            # note, rest, harmony以外にもattribute等の属性がある
+            if (factor_tag != 'note') & (factor_tag != 'rest') & (factor_tag != 'harmony'):
                 continue
-            if (chord_bar - total_duration) <= 0: #chord検出位置に到達
+            if (chord_bar - total_duration) <= 0:  # chord検出位置に到達
                 # print("{} - {} is write position on {}".format(chord_measure, total_duration, chord_name))
                 # print("new harmony write")
-                first_part_measures[chord_measure-1].insert(j,createHarmonyElement(chord_name))
+                first_part_measures[chord_measure -
+                                    1].insert(j, createHarmonyElement(chord_name))
                 break
-            else:                
+            else:
                 if first_part_measures[chord_measure-1][j].findtext('duration') != None:
-                    factor_duration = frac(int(first_part_measures[chord_measure-1][j].findtext('duration')), divisions)
+                    factor_duration = frac(
+                        int(first_part_measures[chord_measure-1][j].findtext('duration')), divisions)
                     total_duration += factor_duration
-    tree.write('ChordAdd_'+score_name, encoding='UTF-8', xml_declaration=True)
-    #for i in range(len(measures)):
-        #print(measures[i].find('harmony'))
+    return et.tostring(tree.getroot(), encoding='unicode')
+    # tree.write('ChordAdd_'+score_name, encoding='UTF-8', xml_declaration=True)
+    # for i in range(len(measures)):
+    # print(measures[i].find('harmony'))
 
-def analyze(score_name):   
-    head = 1
-    tail = -1
-    chord_list = getChordMinimumUnit(score_name, head=head, tail=tail, sameChordPass=1)
-    writeChord(score_name, chord_list, head=head, tail=tail, chordOverwrite=1)
+# getMusicxmlPitch(score_name)
 
-#getMusicxmlPitch(score_name)
 
 '''
 for thisNote in excerpt.recurse().notes:
