@@ -73,7 +73,7 @@ def upload():
 
         if file and allowed_file(file.filename):
             # file: werzurg.FileStorage
-            filename = secure_filename(file.filename)
+            filename = file.filename
             # file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             # return redirect(url_for())
             response = make_response()
