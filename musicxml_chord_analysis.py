@@ -1,6 +1,8 @@
 from music21 import *
 from xml.etree import ElementTree as et  # mxlは非対応
 from fractions import Fraction as frac
+from io import BytesIO
+import urllib.parse
 
 # INITIAL SETUP
 # musescore directory : /Applications/MuseScore 3.app/Contents/MacOS/mscore
@@ -161,7 +163,7 @@ def fractionConvert(beatStr):
 
 
 def getChordMinimumUnit(score_url, head, tail, sameChordPass=1):
-    full_score = converter.parse(score_url)
+    full_score = converter.parse(urllib.parse.quote(score_url, safe='/:'))
     if tail == -1:
         tail = len(full_score.getElementsByClass(stream.Part)
                    [0].getElementsByClass(stream.Measure))
@@ -275,8 +277,11 @@ def writeChord(score_file, chord_list, head, tail, chordOverwrite=1):
                     factor_duration = frac(
                         int(first_part_measures[chord_measure-1][j].findtext('duration')), divisions)
                     total_duration += factor_duration
-    return et.tostring(tree.getroot(), encoding='unicode')
-    # tree.write('ChordAdd_'+score_name, encoding='UTF-8', xml_declaration=True)
+    # return et.tostring(tree.getroot(), encoding='unicode')
+    f = BytesIO()
+    tree.write(f, encoding='UTF-8', xml_declaration=True)
+    f.seek(0)
+    return f.read().decode('UTF-8')
     # for i in range(len(measures)):
     # print(measures[i].find('harmony'))
 
