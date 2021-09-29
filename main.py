@@ -1,13 +1,20 @@
 import os
+from os.path import join, dirname
 from flask import Flask, request, make_response, jsonify, flash, redirect, url_for, session
 from werkzeug.utils import secure_filename
+from urllib.parse import quote
 from google.cloud import storage
+
+from google.oauth2 import service_account
+
+from dotenv import load_dotenv
 
 from musicxml_chord_analysis import getChordMinimumUnit, writeChord
 from music21 import environment
 
 from io import StringIO
 
+load_dotenv(override=True)
 environment.set('autoDownload', 'allow')
 
 app = Flask(__name__)
@@ -16,8 +23,8 @@ UPLOAD_DIR = os.getenv("UPLOAD_DIR_PATH")
 
 CLOUD_STORAGE_BUCKET = os.getenv("CLOUD_STORAGE_BUCKET")
 
-CLOUD_STORAGE_ENDPOINT = 'http://' + \
-    CLOUD_STORAGE_BUCKET + '.storage.googleapis.com'
+CLOUD_STORAGE_ENDPOINT = (
+    'http://' + CLOUD_STORAGE_BUCKET + '.storage.googleapis.com')
 
 ALLOWED_EXTENSIONS = {'musicxml'}
 
@@ -65,12 +72,6 @@ def upload():
 
         bucket = gcs.get_bucket(CLOUD_STORAGE_BUCKET)
 
-        blob = bucket.blob(filename)
-        blob.upload_from_string(
-            file.read(),
-            content_type=file.content_type
-        )
-
         if file and allowed_file(file.filename):
             # file: werzurg.FileStorage
             filename = file.filename
@@ -84,7 +85,7 @@ def upload():
             # file_url = cloud_storage_endpoint + '/nippon.musicxml'
 
             chord_list = getChordMinimumUnit(
-                file_url, head=1, tail=-1, sameChordPass=1)
+                file_url, head=1, tail=-1, sameChordPass=request.form.get('sameChordPass'))
 
             # 受け取ったmusicxmlに、オンメモリでコードを書き込む
             output = StringIO()
@@ -95,8 +96,11 @@ def upload():
             output.close()
 
             downloadFileName = 'down' + filename
-            response.headers['Content-Disposition'] = 'attachment; filename=' + \
-                downloadFileName
+            response.headers["Content-Disposition"] = \
+                "attachment;" \
+                "filename*=UTF-8''{utf_filename}".format(
+                utf_filename=quote(downloadFileName.encode('utf-8'))
+            )
 
             response.mimetype = 'text/xml'
 
@@ -104,10 +108,16 @@ def upload():
 
     return '''
     <!doctype html>
+    <head>
+        <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+        <meta content="utf-8" http-equiv="encoding">
+    </head>
     <title>chord analysis</title>
     <h1>コード解析</h1>
     <form method=post enctype=multipart/form-data>
-      <input type=file name=file>
+      <input type=file name=file> <br>
+      前と同じコードを飛ばす <input type=checkbox name=sameChordPass><br>
+      <br>
       <input type=submit value=Upload>
     </form>
     '''
