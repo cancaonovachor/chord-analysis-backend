@@ -83,13 +83,25 @@ def upload():
             file_url = upload_blob(file, filename)
 
             # file_url = cloud_storage_endpoint + '/nippon.musicxml'
+            sameChordPass = 1 if request.form.get(
+                'sameChordPass') is not '' else 0
+
+            # 開始小節: 最終小節よりも大きい値を入れると解析せずそのままの楽譜が返る
+            start = request.form.get('start')
+            head = int(start) if start is not '' else 1
+
+            # 終了小節: -1の場合最後まで
+            # 最終小節よりも大きい値を入れるとエラー
+            # 開始 > 終了 では解析せずそのままの楽譜が返る
+            end = request.form.get('end')
+            tail = int(end) if end is not '' else -1
 
             chord_list = getChordMinimumUnit(
-                file_url, head=1, tail=-1, sameChordPass=request.form.get('sameChordPass'))
+                file_url, head=head, tail=tail, sameChordPass=sameChordPass)
 
             # 受け取ったmusicxmlに、オンメモリでコードを書き込む
             output = StringIO()
-            output.write(writeChord(file, chord_list, head=1, tail=-1))
+            output.write(writeChord(file, chord_list, head=head, tail=tail))
 
             response.data = output.getvalue()
 
@@ -117,6 +129,8 @@ def upload():
     <form method=post enctype=multipart/form-data>
       <input type=file name=file> <br>
       前と同じコードを飛ばす <input type=checkbox name=sameChordPass><br>
+      開始小節 <input type="number" name="start"> <br>
+      終了小節 <input type="number" name="end">
       <br>
       <input type=submit value=Upload>
     </form>
