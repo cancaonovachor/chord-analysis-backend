@@ -12,7 +12,7 @@ WORKDIR $APP_HOME
 COPY . ./
 
 # Install production dependencies.
-RUN pip install Flask gunicorn music21==6.7.1 google-cloud-storage python-dotenv
+RUN pip install Flask gunicorn music21==6.7.1 google-cloud-storage python-dotenv flask-cors
 
 # Run the web service on container startup. Here we use the gunicorn
 # webserver, with one worker process and 8 threads.
