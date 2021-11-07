@@ -63,6 +63,7 @@ def upload_blob(source_file_object, destination_blob_name):
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
     if request.method == 'POST':
+        print(request.form)
         if 'file' not in request.files:
             make_response(jsonify({'result': 'uploadFile is required.'}))
 
