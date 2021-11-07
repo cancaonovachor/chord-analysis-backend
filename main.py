@@ -4,6 +4,7 @@ from flask import Flask, request, make_response, jsonify, flash, redirect, url_f
 from werkzeug.utils import secure_filename
 from urllib.parse import quote
 from google.cloud import storage
+from flask_cors import CORS
 
 from google.oauth2 import service_account
 
@@ -18,6 +19,7 @@ load_dotenv(override=True)
 environment.set('autoDownload', 'allow')
 
 app = Flask(__name__)
+CORS(app)
 
 UPLOAD_DIR = os.getenv("UPLOAD_DIR_PATH")
 
@@ -141,6 +143,16 @@ def upload():
 def hello_world():
     name = os.environ.get("NAME", "World")
     return "Hello {}!".format(name)
+
+
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers',
+                         'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods',
+                         'GET,PUT,POST,DELETE,OPTIONS')
+    return response
 
 
 if __name__ == "__main__":
