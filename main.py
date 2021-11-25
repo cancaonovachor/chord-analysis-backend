@@ -63,7 +63,7 @@ def upload_blob(source_file_object, destination_blob_name):
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
     if request.method == 'POST':
-        print(request.form)
+        print(request.files)
         if 'file' not in request.files:
             make_response(jsonify({'result': 'uploadFile is required.'}))
 
@@ -87,25 +87,25 @@ def upload():
             file_url = upload_blob(file, filename)
 
             # file_url = cloud_storage_endpoint + '/nippon.musicxml'
-            sameChordPass = 1 if request.form.get(
-                'sameChordPass') != '' else 0
+            sameChordPass = 0 if request.form.get(
+                'sameChordPass') == 'false' else 1
 
             # 開始小節: 最終小節よりも大きい値を入れると解析せずそのままの楽譜が返る
-            start = request.form.get('start')
-            head = int(start) if start != '' else 1
+            # start = request.form.get('start')
+            # head = int(start) if start != '' else 1
 
             # 終了小節: -1の場合最後まで
             # 最終小節よりも大きい値を入れるとエラー
             # 開始 > 終了 では解析せずそのままの楽譜が返る
-            end = request.form.get('end')
-            tail = int(end) if end != '' else -1
+            # end = request.form.get('end')
+            # tail = int(end) if end != '' else -1
 
             chord_list = getChordMinimumUnit(
-                file_url, head=head, tail=tail, sameChordPass=sameChordPass)
+                file_url, head=1, tail=-1, sameChordPass=sameChordPass)
 
             # 受け取ったmusicxmlに、オンメモリでコードを書き込む
             output = StringIO()
-            output.write(writeChord(file, chord_list, head=head, tail=tail))
+            output.write(writeChord(file, chord_list, head=1, tail=-1))
 
             response.data = output.getvalue()
 
