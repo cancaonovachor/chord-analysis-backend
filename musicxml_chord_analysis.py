@@ -232,7 +232,7 @@ def createHarmonyElement(chord_name):
     kind.text = musicxml_kind
     if degree_element != None:
         harmony.insert(list(harmony).index(kind)+1, degree_element)
-    et.dump(harmony)
+    # et.dump(harmony)
     return harmony
 
 
