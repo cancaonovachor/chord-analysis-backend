@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 from os.path import join, dirname
 from flask import Flask, request, make_response, jsonify, flash, redirect, url_for, session
