@@ -11,6 +11,7 @@ COPY . ./
 RUN pip install Flask gunicorn music21==6.7.1 google-cloud-storage python-dotenv flask-cors
 
 FROM gcr.io/distroless/python3
+ENV PYTHONENCODING=UTF-8
 COPY --from=build-env /app /app
 WORKDIR /app
 # Run the web service on container startup. Here we use the gunicorn
