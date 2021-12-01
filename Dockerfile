@@ -1,5 +1,4 @@
-FROM gcr.io/distroless/python3
-
+FROM python:3-slim AS build-env
 # Allow statements and log messages to immediately appear in the Knative logs
 ENV PYTHONUNBUFFERED True
 
@@ -11,6 +10,9 @@ COPY . ./
 # Install production dependencies.
 RUN pip install Flask gunicorn music21==6.7.1 google-cloud-storage python-dotenv flask-cors
 
+FROM gcr.io/distroless/python3
+COPY --from=build-env /app /app
+WORKDIR /app
 # Run the web service on container startup. Here we use the gunicorn
 # webserver, with one worker process and 8 threads.
 # For environments with multiple CPU cores, increase the number of workers
