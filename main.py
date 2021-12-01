@@ -143,7 +143,7 @@ def upload():
 
 @app.route("/")
 def hello_world():
-    name = os.environ.get("NAME", "World")
+    name = os.environ.get("NAME", "VS")
     return "Hello {}!".format(name)
 
 
