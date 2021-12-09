@@ -147,21 +147,6 @@ def getMusicxmlPitch(score_name):
                     chord_list.append([bar, "rest"])
             # print(chord_list)
 
-
-def fractionConvert(beatStr):
-    # beatStr : 1 1/2
-    beatStr_list = beatStr.split(" ")
-    if len(beatStr_list) == 1:  # 整数のみ
-        return int(beatStr_list[0])
-    else:  # 帯分数
-        integer = int(beatStr_list[0])
-        fraction = beatStr_list[1]
-        fraction_list = fraction.split("/")
-        numerator = int(fraction_list[0])
-        denominator = int(fraction_list[1])
-        return frac(numerator + denominator * integer, denominator)
-
-
 def getChordMinimumUnit(score_url, head, tail, sameChordPass=1):
     full_score = converter.parse(urllib.parse.quote(score_url, safe='/:'))
     if tail == -1:
@@ -172,7 +157,7 @@ def getChordMinimumUnit(score_url, head, tail, sameChordPass=1):
     chord_list = []
     for c in chfy.flat.getElementsByClass(chord.Chord):
         chord_name = harmony.chordSymbolFigureFromChord(c, True)
-        beat = fractionConvert(c.beatStr)
+        beat = (frac(c.beat)-1) * c.beatDuration.quarterLength
         if chord_name[0] == 'Chord Symbol Cannot Be Identified':
             continue
         if sameChordPass == 1:
@@ -200,7 +185,7 @@ def getDivisions(measures, measure_num):
     return int(divisions)
 
 
-def createHarmonyElement(chord_name):
+def createHarmonyElement(chord_name, offset_duration):
     '''
     # print-frame: ギター譜用のフレット表示 yes/no
     # pacement: 表示位置??
@@ -221,12 +206,14 @@ def createHarmonyElement(chord_name):
     '''
     harmony = et.Element('harmony')
     root = et.SubElement(harmony, 'root')
+    offset = et.SubElement(harmony,'offset')
     root_step = et.SubElement(root, 'root-step')
     root_alter = et.SubElement(root, 'root-alter')
     #root_step.text, root_alter.text = getChordRoot(chord_name[0])
     root_name, alter = getChordRoot(chord_name[0])
     root_step.text = root_name
     root_alter.text = str(alter)
+    offset.text = str(offset_duration)
     kind = et.SubElement(harmony, 'kind')
     musicxml_kind, degree_element = converChordKind(chord_name[1])
     kind.text = musicxml_kind
@@ -258,7 +245,7 @@ def writeChord(score_file, chord_list, head, tail, chordOverwrite=1):
         chord_name = chord_list[i][2]
 
         factor_num = len(first_part_measures[chord_measure-1])
-        total_duration = 1
+        total_duration = 0
         divisions = getDivisions(first_part_measures, chord_measure)
 
         for j in range(factor_num):
@@ -269,8 +256,9 @@ def writeChord(score_file, chord_list, head, tail, chordOverwrite=1):
             if (chord_bar - total_duration) <= 0:  # chord検出位置に到達
                 # print("{} - {} is write position on {}".format(chord_measure, total_duration, chord_name))
                 # print("new harmony write")
+                offset_duration = (chord_bar - total_duration) * divisions
                 first_part_measures[chord_measure -
-                                    1].insert(j, createHarmonyElement(chord_name))
+                                    1].insert(j, createHarmonyElement(chord_name, offset_duration))
                 break
             else:
                 if first_part_measures[chord_measure-1][j].findtext('duration') != None:
