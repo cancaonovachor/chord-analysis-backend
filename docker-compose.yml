@@ -1,0 +1,18 @@
+version: "3"
+
+services:
+  ca:
+    container_name: ca
+    build:
+      context: .
+      dockerfile: ./Dockerfile_local
+    ports:
+      - 3000:3000
+    tty: true
+    volumes:
+      - ./:/app
+    environment:
+      - "CLOUD_STORAGE_BUCKET=midiconverter-scores"
+      - "PROJECT_ID=midi-converter-314311"
+      - "PORT=3000"
+      - "GOOGLE_APPLICATION_CREDENTIALS=sa-key.json"
