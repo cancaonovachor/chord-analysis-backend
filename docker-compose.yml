@@ -15,4 +15,4 @@ services:
       - "CLOUD_STORAGE_BUCKET=midiconverter-scores"
       - "PROJECT_ID=midi-converter-314311"
       - "PORT=3000"
-      - "GOOGLE_APPLICATION_CREDENTIALS=src/sa-key.json"
+      - "GOOGLE_APPLICATION_CREDENTIALS=sa-key.json"
