@@ -43,6 +43,14 @@ docker exec -it ca sh
 # python main.py
 ```
 
+## スクリプト実行（ローカル）
+
+```
+docker-compose up
+docker exec -it ca sh
+python main_local.py
+```
+
 volumes でローカルと docker でファイルを共有しているため、  
 コードの修正しても docker 内で `python main.py` をもう一度実行すれば ok
 
