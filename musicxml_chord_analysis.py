@@ -1,3 +1,4 @@
+import os
 from music21 import *
 from xml.etree import ElementTree as et  # mxlは非対応
 from fractions import Fraction as frac
@@ -11,6 +12,7 @@ import urllib.parse
 # us['musicxmlPath'] = '/Applications/MuseScore 3.app/Contents/MacOS/mscore'
 # us['musescoreDirectPNGPath'] = '/Applications/MuseScore 3.app/Contents/MacOS/mscore'
 
+ENV = os.getenv("ENV")
 
 def pitch_scale(pitch, alter):
     pitch_scale = ["C", "C#", "D", "D#", "E",
@@ -148,7 +150,10 @@ def getMusicxmlPitch(score_name):
             # print(chord_list)
 
 def getChordMinimumUnit(score_url, head, tail, sameChordPass=1):
-    full_score = converter.parse(urllib.parse.quote(score_url, safe='/:'))
+    if ENV == "local":
+        full_score = converter.parse(score_url)
+    else:
+        full_score = converter.parse(urllib.parse.quote(score_url, safe='/:'))
     if tail == -1:
         tail = len(full_score.getElementsByClass(stream.Part)
                    [0].getElementsByClass(stream.Measure))

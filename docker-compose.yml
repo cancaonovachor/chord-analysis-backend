@@ -16,3 +16,4 @@ services:
       - "PROJECT_ID=midi-converter-314311"
       - "PORT=3000"
       - "GOOGLE_APPLICATION_CREDENTIALS=sa-key.json"
+      - "ENV=local"
