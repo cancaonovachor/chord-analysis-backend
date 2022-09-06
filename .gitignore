@@ -13,6 +13,8 @@ __pycache__/
 # C extensions
 *.so
 
+output/
+
 # Distribution / packaging
 .Python
 build/
@@ -145,3 +147,5 @@ dmypy.json
 cython_debug/
 
 # End of https://www.toptal.com/developers/gitignore/api/python
+
+.DS_Store

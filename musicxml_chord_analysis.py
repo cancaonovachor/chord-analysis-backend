@@ -5,6 +5,8 @@ from fractions import Fraction as frac
 from io import BytesIO
 import urllib.parse
 
+from typing import NewType
+
 # INITIAL SETUP
 # musescore directory : /Applications/MuseScore 3.app/Contents/MacOS/mscore
 # us = environment.UserSettings()
@@ -149,26 +151,35 @@ def getMusicxmlPitch(score_name):
                     chord_list.append([bar, "rest"])
             # print(chord_list)
 
-def getChordMinimumUnit(score_url, head, tail, sameChordPass=1):
+# 最小単位でコードを切り出して二次元配列化する
+MeasureNumber = NewType('MeasureNumber', int)
+Beat = NewType('Beat', float)
+ChordName = tuple[str, str]
+ChordUnit = tuple[MeasureNumber, Beat, ChordName]
+def getChordMinimumUnit(score_url: str, head: int, tail: int, sameChordPass=1) -> list[ChordUnit]:
     if ENV == "local":
         full_score = converter.parse(score_url)
     else:
         full_score = converter.parse(urllib.parse.quote(score_url, safe='/:'))
+
     if tail == -1:
         tail = len(full_score.getElementsByClass(stream.Part)
                    [0].getElementsByClass(stream.Measure))
+
     excerpt = full_score.measures(head, tail)
     chfy = excerpt.chordify()
     chord_list = []
     for c in chfy.flat.getElementsByClass(chord.Chord):
         chord_name = harmony.chordSymbolFigureFromChord(c, True)
+        # frac 分数で表記
+        # c.beatの長さはベースとなる拍子（4/4, 6/8等）によって変化があるためquarterLengthを掛けることによって補正している
+        # TODO 実際に該当の拍子の楽譜で試す
         beat = (frac(c.beat)-1) * c.beatDuration.quarterLength
         if chord_name[0] == 'Chord Symbol Cannot Be Identified':
             continue
         if sameChordPass == 1:
-            if len(chord_list) == 0:
-                chord_list.append([c.measureNumber, beat, chord_name])
-            elif chord_list[-1][2] != chord_name:
+            # chord_list[-1][2]: １つ前に配列に追加したchord_name
+            if len(chord_list) == 0 or chord_list[-1][2] != chord_name:
                 chord_list.append([c.measureNumber, beat, chord_name])
         else:
             chord_list.append([c.measureNumber, beat, chord_name])
@@ -176,18 +187,14 @@ def getChordMinimumUnit(score_url, head, tail, sameChordPass=1):
     return chord_list
 
 # 今の小節から遡ってdivisionsを特定する
-
-
+# divisionsが存在しないことはないと考えて良いので、実際はNoneはかえらない
 def getDivisions(measures, measure_num):
-    divisions = None
     for i in range(measure_num, 0, -1):
-        if measures[i-1].find('attributes') != None:
-            divisions = measures[i-1].find('attributes').findtext('divisions')
-        if divisions == None:
-            continue
-        else:
-            break
-    return int(divisions)
+        attr = measures[i-1].find('attributes')
+        if attr != None:
+            if attr.findtext('divisions') != None:
+                return int(attr.findtext('divisions'))
+    return None
 
 
 def createHarmonyElement(chord_name, offset_duration):
@@ -201,13 +208,13 @@ def createHarmonyElement(chord_name, offset_duration):
         <kind>major</kind>
         <staff>1</staff>
     </harmony>
-      <harmony default-y="34" font-family="Arial" font-size="10.6">
+    <harmony default-y="34" font-family="Arial" font-size="10.6">
         <root>
-          <root-step>B</root-step>
-          <root-alter>-1</root-alter>
+        <root-step>B</root-step>
+        <root-alter>-1</root-alter>
         </root>
         <kind halign="center" text="M7">major-seventh</kind>
-      </harmony>
+    </harmony>
     '''
     harmony = et.Element('harmony')
     root = et.SubElement(harmony, 'root')
@@ -250,7 +257,7 @@ def writeChord(score_file, chord_list, head, tail, chordOverwrite=1):
         chord_name = chord_list[i][2]
 
         factor_num = len(first_part_measures[chord_measure-1])
-        total_duration = 0
+        total_duration = 0 # 楽譜のどこまで見たかchord単位で記録
         divisions = getDivisions(first_part_measures, chord_measure)
 
         for j in range(factor_num):
@@ -262,6 +269,7 @@ def writeChord(score_file, chord_list, head, tail, chordOverwrite=1):
                 # print("{} - {} is write position on {}".format(chord_measure, total_duration, chord_name))
                 # print("new harmony write")
                 offset_duration = (chord_bar - total_duration) * divisions
+                harmony_element = createHarmonyElement(chord_name, offset_duration)
                 first_part_measures[chord_measure -
                                     1].insert(j, createHarmonyElement(chord_name, offset_duration))
                 break
