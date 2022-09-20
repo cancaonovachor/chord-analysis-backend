@@ -190,7 +190,7 @@ def getDivisions(measures, measure_num):
             break
     return int(divisions)
 
-def getChordRootAndBass(chord_name: str) -> tuple[str, int, str | None, int | None]:
+def getChordRootAndBass(chord_name: str) :
     splitted_chord_name = chord_name.split("/")
     
     # chord_name に Bassがない場合 ex. F#, Bb
