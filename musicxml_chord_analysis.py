@@ -21,7 +21,7 @@ def pitch_scale(pitch, alter):
     ind = pitch_scale.index(pitch)
     return pitch_scale[ind+alter]
 
- 
+
 def getChordRoot(chord_name: str): #  -> tuple[str, int]:
     splitted_chord_name = chord_name.split("/")
     if len(splitted_chord_name) == 1:
@@ -33,7 +33,7 @@ def getChordRoot(chord_name: str): #  -> tuple[str, int]:
     else:
         return splitted_chord_name[0], 0
 
-def converChordKind(chord_kind: str):
+def convertChordKind(chord_kind: str):
     if chord_kind == 'seventh-flat-five':
         musicxml_kind = 'dominant'
         '''
@@ -264,7 +264,7 @@ def createHarmonyElement(chord_name, offset_duration):
     kind = et.SubElement(harmony, 'kind')
     musicxml_kind, degree_element = converChordKind(chord_name[1])
     kind.text = musicxml_kind
-     
+
     if bass_name is not None:
         bass = et.SubElement(harmony,'bass')
         bass_step = et.SubElement(bass, 'bass-step')

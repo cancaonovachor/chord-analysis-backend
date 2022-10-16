@@ -3,10 +3,10 @@ from io import StringIO
 import os
 
 def main():
-    score_name = 'sample_akikaze.musicxml'
+    score_name = 'chordslist.musicxml'
     head = 1
     tail = -1
-    chord_list = getChordMinimumUnit(score_name, head=head, tail=tail, sameChordPass=1)
+    chord_list = getChordMinimumUnit(score_name, head=head, tail=tail, sameChordPass=0)
     output = StringIO()
     output.write(writeChord(score_name, chord_list, head=head, tail=tail))
 
