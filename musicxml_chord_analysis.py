@@ -22,7 +22,7 @@ def pitch_scale(pitch, alter):
     return pitch_scale[ind+alter]
 
  
-def getChordRoot(chord_name: str) -> tuple[str, int]:
+def getChordRoot(chord_name: str): #  -> tuple[str, int]:
     splitted_chord_name = chord_name.split("/")
     if len(splitted_chord_name) == 1:
         return splitted_chord_name[0], 0
@@ -162,6 +162,12 @@ def getChordMinimumUnit(score_url: str, head: int, tail: int, sameChordPass=1):
     chfy = excerpt.chordify()
     chord_list = []
     for c in chfy.flat.getElementsByClass(chord.Chord):
+
+        # cから構成音の数をとる
+        orderCount = len(c.normalOrder)
+        # 構成音が3つ未満の場合はcontinue
+        if orderCount < 3:
+            continue
         chord_name = harmony.chordSymbolFigureFromChord(c, True)
         beat = (frac(c.beat)-1) * c.beatDuration.quarterLength
         if chord_name[0] == 'Chord Symbol Cannot Be Identified':
@@ -190,7 +196,7 @@ def getDivisions(measures, measure_num):
             break
     return int(divisions)
 
-def getChordRootAndBass(chord_name: str) -> tuple[str, int, str | None, int | None]:
+def getChordRootAndBass(chord_name: str): # -> tuple[str, int, str | None, int | None]:
     splitted_chord_name = chord_name.split("/")
     
     # chord_name に Bassがない場合 ex. F#, Bb
