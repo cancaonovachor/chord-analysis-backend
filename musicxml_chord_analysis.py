@@ -55,6 +55,17 @@ def convertChordKind(chord_name: str):
     chord_kind = getChordKind(chord_name)
     print("chord_kind: "+chord_kind)
 
+    if chord_kind == '+':
+        return 'aug',None,None
+    elif chord_kind == 'maj7':
+        return 'maj7',None,'M7'
+    elif chord_kind == 'mM7':
+        return 'major-minor',None,'mM7'
+    
+    else:
+        return chord_kind
+        
+
     # if chord_kind == 'seventh-flat-five':
     #     musicxml_kind = 'dominant'
     #     '''
@@ -284,7 +295,7 @@ def createHarmonyElement(chord_name, offset_duration):
 
     kind = et.SubElement(harmony, 'kind')
     print(chord_name[0])
-    musicxml_kind, degree_element = convertChordKind(chord_name[0])
+    musicxml_kind, degree_element,standard_chordname_text = convertChordKind(chord_name[0])
     kind.text = musicxml_kind
 
     if bass_name is not None:
