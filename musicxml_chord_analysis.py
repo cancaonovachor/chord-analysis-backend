@@ -43,9 +43,11 @@ def getChordKind(chord_name: str): #  -> tuple[str, int]:
     chord_kind = chord_name[1:]
     # 1文字目が#か-の場合は2文字目も切り出す
     if chord_kind[0] == '#':
-        chord_kind = chord_kind[0:]
+        chord_kind = chord_kind[1:]
     elif chord_kind[0] == '-':
-        chord_kind = chord_kind[0:]
+        chord_kind = chord_kind[1:]
+
+    chord_kind = chord_kind.split("/")[0] #分数コードを削除
     return chord_kind
 
 def convertChordKind(chord_name: str):
@@ -55,17 +57,22 @@ def convertChordKind(chord_name: str):
     chord_kind = getChordKind(chord_name)
     print("chord_kind: "+chord_kind)
 
-    if chord_kind == '+':
-        return 'aug',None,None
+    if '+' in chord_kind:
+        if chord_kind == '+': # "+"のみの場合は"aug"とする
+            return 'aug',None,None
+        else:
+            chord_kind = chord_kind.replace('+','')
+            if chord_kind == '7':
+                return 'aug7',None,None
+            return 'aug',None,None # TODO: augの他のパターンがあれば追加必要
     elif chord_kind == 'maj7':
-        return 'maj7',None,'M7'
+        return 'major-seventh',None,'M7'
     elif chord_kind == 'mM7':
         return 'major-minor',None,'mM7'
     
     else:
-        return chord_kind
+        return chord_kind, None, None
         
-
     # if chord_kind == 'seventh-flat-five':
     #     musicxml_kind = 'dominant'
     #     '''
@@ -296,6 +303,7 @@ def createHarmonyElement(chord_name, offset_duration):
     kind = et.SubElement(harmony, 'kind')
     print(chord_name[0])
     musicxml_kind, degree_element,standard_chordname_text = convertChordKind(chord_name[0])
+    print(musicxml_kind, degree_element,standard_chordname_text)
     kind.text = musicxml_kind
 
     if bass_name is not None:
@@ -310,6 +318,8 @@ def createHarmonyElement(chord_name, offset_duration):
     
     if degree_element != None:
         harmony.insert(list(harmony).index(kind)+1, degree_element)
+    if standard_chordname_text != None:
+        kind.set('text', standard_chordname_text)
     # et.dump(harmony)
     return harmony
 
