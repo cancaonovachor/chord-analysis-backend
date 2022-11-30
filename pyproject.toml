@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "chord-analysis-backend"
+version = "0.1.0"
+description = ""
+authors = ["cancaonovachor"]
+readme = "README.md"
+packages = []
+
+[tool.poetry.dependencies]
+python = "^3.9"
+Flask = "^2.2.2"
+gunicorn = "^20.1.0"
+music21 = "6.7.1"
+google-cloud-storage = "^2.6.0"
+python-dotenv = "^0.21.0"
+flask-cors = "^3.0.10"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
