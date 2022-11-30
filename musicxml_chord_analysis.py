@@ -161,7 +161,7 @@ def convertChordKind(chord_name: str):
     elif 'add' in chord_kind:
         # getChordRootを使わない
         add_note = chord_kind.split("add")[1]
-        root, _ = getChordRoot(chord_name)
+        root = chord_name.split("add")[0]
 
         print("root: "+root)
 
