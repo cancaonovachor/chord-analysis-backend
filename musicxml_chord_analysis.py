@@ -23,95 +23,134 @@ def pitch_scale(pitch, alter):
 
 
 def getChordRoot(chord_name: str): #  -> tuple[str, int]:
-    splitted_chord_name = chord_name.split("/")
-    if len(splitted_chord_name) == 1:
-        return splitted_chord_name[0], 0
-    elif splitted_chord_name[1] == "#":
-        return splitted_chord_name[0], 1 
-    elif splitted_chord_name[1] == "b":
-        return splitted_chord_name[0], -1
+    # 先頭２文字を切り出す
+    root = chord_name[:2]
+    # ２文字目が#か-かどうかで判定
+    if root[1] == '#':
+        alter = 1
+    elif root[1] == '-':
+        alter = -1
     else:
-        return splitted_chord_name[0], 0
+        alter = 0
+    return root, alter
 
-def convertChordKind(chord_kind: str):
-    if chord_kind == 'seventh-flat-five':
-        musicxml_kind = 'dominant'
-        '''
-        <degree>
-          <degree-value>5</degree-value>
-          <degree-alter>-1</degree-alter>
-          <degree-type>alter</degree-type>
-        </degree>    
-        '''
-        degree = et.Element('degree')
-        degree_value = et.SubElement(degree, 'degree-value')
-        degree_value.text = '5'
-        degree_alter = et.SubElement(degree, 'degree-alter')
-        degree_alter.text = '-1'
-        degree_type = et.SubElement(degree, 'degree-type')
-        degree_type.text = 'alter'
-        return musicxml_kind, degree
-    elif chord_kind == 'augmented-major-11th':
-        musicxml_kind = 'augmented'
-        '''
-        <degree>
-          <degree-value>11</degree-value>
-          <degree-alter>0</degree-alter>
-          <degree-type text="add">add</degree-type>
-        </degree>
-        '''
-        degree = et.Element('degree')
-        degree_value = et.SubElement(degree, 'degree-value')
-        degree_value.text = '11'
-        degree_alter = et.SubElement(degree, 'degree-alter')
-        degree_alter.text = '0'
-        degree_type = et.SubElement(degree, 'degree-type')
-        degree_type.text = 'add'
-        return musicxml_kind, degree 
-    elif chord_kind == 'dominant-seventh':
-        musicxml_kind = 'dominant'
-        degree = None
-        return musicxml_kind, degree
-    elif chord_kind == 'half-diminished-minor-ninth':
-        musicxml_kind = 'half-diminished'
-        '''
-        <degree>
-          <degree-value>9</degree-value>
-          <degree-alter>-1</degree-alter>
-          <degree-type>add</degree-type>
-        </degree>
-        '''
-        degree = et.Element('degree')
-        degree_value = et.SubElement(degree, 'degree-value')
-        degree_value.text = '9'
-        degree_alter = et.SubElement(degree, 'degree-alter')
-        degree_alter.text = '-1'
-        degree_type = et.SubElement(degree, 'degree-type')
-        degree_type.text = 'add'
-        return musicxml_kind, degree
-    elif chord_kind == 'half-diminished-seventh':
-        musicxml_kind = 'half-diminished'
-        degree = None
-        return musicxml_kind, degree
-    elif chord_kind == 'augmented-major-seventh':
-        musicxml_kind = 'augmented'
-        '''
-        <degree>
-          <degree-value>7</degree-value>
-          <degree-alter>1</degree-alter>
-          <degree-type>add</degree-type>
-        </degree>
-        '''
-        degree = et.Element('degree')
-        degree_value = et.SubElement(degree, 'degree-value')
-        degree_value.text = '7'
-        degree_alter = et.SubElement(degree, 'degree-alter')
-        degree_alter.text = '1'
-        degree_type = et.SubElement(degree, 'degree-type')
-        degree_type.text = 'add'
-        return musicxml_kind, degree
+def getChordKind(chord_name: str): #  -> tuple[str, int]:
+    # root以外を切り出す
+    # 1文字の場合は空で返す
+    if len(chord_name) == 1:
+        return ''
+    # 1文字目以外を切り出す
+    chord_kind = chord_name[1:]
+    # 1文字目が#か-の場合は2文字目も切り出す
+    if chord_kind[0] == '#':
+        chord_kind = chord_kind[1:]
+    elif chord_kind[0] == '-':
+        chord_kind = chord_kind[1:]
+
+    chord_kind = chord_kind.split("/")[0] #分数コードを削除
+    return chord_kind
+
+def convertChordKind(chord_name: str):
+    print("chord_name: "+chord_name)
+
+    # Chord Kindを切り出す
+    chord_kind = getChordKind(chord_name)
+    print("chord_kind: "+chord_kind)
+
+    if '+' in chord_kind:
+        if chord_kind == '+': # "+"のみの場合は"aug"とする
+            return 'aug',None,None
+        else:
+            chord_kind = chord_kind.replace('+','')
+            if chord_kind == '7':
+                return 'aug7',None,None
+            return 'aug',None,None # TODO: augの他のパターンがあれば追加必要
+    elif chord_kind == 'maj7':
+        return 'major-seventh',None,'M7'
+    elif chord_kind == 'mM7':
+        return 'major-minor',None,'mM7'
+    
     else:
-        return chord_kind, None
+        return chord_kind, None, None
+        
+    # if chord_kind == 'seventh-flat-five':
+    #     musicxml_kind = 'dominant'
+    #     '''
+    #     <degree>
+    #       <degree-value>5</degree-value>
+    #       <degree-alter>-1</degree-alter>
+    #       <degree-type>alter</degree-type>
+    #     </degree>    
+    #     '''
+    #     degree = et.Element('degree')
+    #     degree_value = et.SubElement(degree, 'degree-value')
+    #     degree_value.text = '5'
+    #     degree_alter = et.SubElement(degree, 'degree-alter')
+    #     degree_alter.text = '-1'
+    #     degree_type = et.SubElement(degree, 'degree-type')
+    #     degree_type.text = 'alter'
+    #     return musicxml_kind, degree
+    # elif chord_kind == 'augmented-major-11th':
+    #     musicxml_kind = 'augmented'
+    #     '''
+    #     <degree>
+    #       <degree-value>11</degree-value>
+    #       <degree-alter>0</degree-alter>
+    #       <degree-type text="add">add</degree-type>
+    #     </degree>
+    #     '''
+    #     degree = et.Element('degree')
+    #     degree_value = et.SubElement(degree, 'degree-value')
+    #     degree_value.text = '11'
+    #     degree_alter = et.SubElement(degree, 'degree-alter')
+    #     degree_alter.text = '0'
+    #     degree_type = et.SubElement(degree, 'degree-type')
+    #     degree_type.text = 'add'
+    #     return musicxml_kind, degree 
+    # elif chord_kind == 'dominant-seventh':
+    #     musicxml_kind = 'dominant'
+    #     degree = None
+    #     return musicxml_kind, degree
+    # elif chord_kind == 'half-diminished-minor-ninth':
+    #     musicxml_kind = 'half-diminished'
+    #     '''
+    #     <degree>
+    #       <degree-value>9</degree-value>
+    #       <degree-alter>-1</degree-alter>
+    #       <degree-type>add</degree-type>
+    #     </degree>
+    #     '''
+    #     degree = et.Element('degree')
+    #     degree_value = et.SubElement(degree, 'degree-value')
+    #     degree_value.text = '9'
+    #     degree_alter = et.SubElement(degree, 'degree-alter')
+    #     degree_alter.text = '-1'
+    #     degree_type = et.SubElement(degree, 'degree-type')
+    #     degree_type.text = 'add'
+    #     return musicxml_kind, degree
+    # elif chord_kind == 'half-diminished-seventh':
+    #     musicxml_kind = 'half-diminished'
+    #     degree = None
+    #     return musicxml_kind, degree
+    # elif chord_kind == 'augmented-major-seventh':
+    #     musicxml_kind = 'augmented'
+    #     '''
+    #     <degree>
+    #       <degree-value>7</degree-value>
+    #       <degree-alter>1</degree-alter>
+    #       <degree-type>add</degree-type>
+    #     </degree>
+    #     '''
+    #     degree = et.Element('degree')
+    #     degree_value = et.SubElement(degree, 'degree-value')
+    #     degree_value.text = '7'
+    #     degree_alter = et.SubElement(degree, 'degree-alter')
+    #     degree_alter.text = '1'
+    #     degree_type = et.SubElement(degree, 'degree-type')
+    #     degree_type.text = 'add'
+    #     return musicxml_kind, degree
+    # else:
+    return chord_kind, None
 
 
 def getMusicxmlPitch(score_name):
@@ -262,7 +301,9 @@ def createHarmonyElement(chord_name, offset_duration):
     root_alter_elem.text = str(root_alter)
 
     kind = et.SubElement(harmony, 'kind')
-    musicxml_kind, degree_element = converChordKind(chord_name[1])
+    print(chord_name[0])
+    musicxml_kind, degree_element,standard_chordname_text = convertChordKind(chord_name[0])
+    print(musicxml_kind, degree_element,standard_chordname_text)
     kind.text = musicxml_kind
 
     if bass_name is not None:
@@ -277,6 +318,8 @@ def createHarmonyElement(chord_name, offset_duration):
     
     if degree_element != None:
         harmony.insert(list(harmony).index(kind)+1, degree_element)
+    if standard_chordname_text != None:
+        kind.set('text', standard_chordname_text)
     # et.dump(harmony)
     return harmony
 
@@ -312,6 +355,7 @@ def writeChord(score_file, chord_list, head, tail, chordOverwrite=1):
             if (factor_tag != 'note') & (factor_tag != 'rest') & (factor_tag != 'harmony'):
                 continue
             if (chord_bar - total_duration) <= 0:  # chord検出位置に到達
+                print(str(chord_measure)+"小節")
                 # print("{} - {} is write position on {}".format(chord_measure, total_duration, chord_name))
                 # print("new harmony write")
                 offset_duration = (chord_bar - total_duration) * divisions
