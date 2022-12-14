@@ -1,3 +1,5 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 import os
 from music21 import *
 from xml.etree import ElementTree as et  # mxlは非対応

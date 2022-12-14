@@ -1,3 +1,5 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 import os
 from os.path import join, dirname
 from flask import Flask, request, make_response, jsonify, flash, redirect, url_for, session
@@ -58,7 +60,6 @@ def upload_blob(source_file_object, destination_blob_name):
     source_file_object.seek(0)
 
     return CLOUD_STORAGE_ENDPOINT + '/' + destination_blob_name
-
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
