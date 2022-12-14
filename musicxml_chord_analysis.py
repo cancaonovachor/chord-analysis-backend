@@ -15,6 +15,88 @@ import typing
 
 ENV = os.getenv("ENV")
 
+pitch_scale_dict = {
+    "C": 0,
+    "B#": 0,
+    "D--": 0,
+    "C#": 1,
+    "D-": 1,
+    "B##": 1,
+    "D": 2,
+    "C##": 2,
+    "E--": 2,
+    "D#": 3,
+    "E-": 3,
+    "F--": 3,
+    "E": 4,
+    "F-": 4,
+    "D##": 4,
+    "F": 5,
+    "E#": 5,
+    "G--": 5,
+    "F#": 6,
+    "G-": 6,
+    "E##": 6,
+    "G": 7,
+    "F##": 7,
+    "A--": 7,
+    "G#": 8,
+    "A-": 8,
+    "A": 9,
+    "G##": 9,
+    "B--": 9,
+    "A#": 10,
+    "B-": 10,
+    "C--": 10,
+    "B": 11,
+    "C-": 11,
+    "A##": 11
+}
+
+def find_pitch_interval(root, add_note):
+    pitch_scale_dict = {
+    "C": 0,
+    "B#": 0,
+    "D--": 0,
+    "C#": 1,
+    "D-": 1,
+    "B##": 1,
+    "D": 2,
+    "C##": 2,
+    "E--": 2,
+    "D#": 3,
+    "E-": 3,
+    "F--": 3,
+    "E": 4,
+    "F-": 4,
+    "D##": 4,
+    "F": 5,
+    "E#": 5,
+    "G--": 5,
+    "F#": 6,
+    "G-": 6,
+    "E##": 6,
+    "G": 7,
+    "F##": 7,
+    "A--": 7,
+    "G#": 8,
+    "A-": 8,
+    "A": 9,
+    "G##": 9,
+    "B--": 9,
+    "A#": 10,
+    "B-": 10,
+    "C--": 10,
+    "B": 11,
+    "C-": 11,
+    "A##": 11
+    
+    }
+    interval = pitch_scale_dict[add_note] - pitch_scale_dict[root]
+
+    # 絶対値を出す
+    return interval % 12
+
 def pitch_scale(pitch, alter):
     pitch_scale = ["C", "C#", "D", "D#", "E",
                    "F", "F#", "G", "G#", "A", "A#", "B"]
@@ -34,12 +116,13 @@ def getChordRoot(chord_name: str): #  -> tuple[str, int]:
         alter = 0
     return root, alter
 
-def getChordKind(chord_name: str): #  -> tuple[str, int]:
+def getChordKind(chord_name: str): #  -> tuple[str, str]:
     # root以外を切り出す
     # 1文字の場合は空で返す
     if len(chord_name) == 1:
         return ''
     # 1文字目以外を切り出す
+    
     chord_kind = chord_name[1:]
     # 1文字目が#か-の場合は2文字目も切り出す
     if chord_kind[0] == '#':
@@ -49,6 +132,42 @@ def getChordKind(chord_name: str): #  -> tuple[str, int]:
 
     chord_kind = chord_kind.split("/")[0] #分数コードを削除
     return chord_kind
+
+def getChordRootAndBass(chord_name: str): # -> tuple[str, int, str | None, int | None]:
+    splitted_chord_name = chord_name.split("/")
+    
+    # chord_name に Bassがない場合 ex. F#, Bb
+    if len(splitted_chord_name) == 1:
+        chord_root = splitted_chord_name[0]
+        if len(chord_root) == 1:
+            return chord_root, 0, None, None
+        elif chord_root[1] == "#":
+            return chord_root[0], 1, None, None
+        elif chord_root[1] == "b":
+            return chord_root[0], -1, None, None
+        else:
+            return chord_root[0], 0, None, None
+    else:
+        # chord_name に Bass がある場合 ex. F/B-
+        chord_root = splitted_chord_name[0]
+        if len(chord_root) == 1:
+            root_step, root_alter = chord_root, 0
+        elif chord_root[1] == "#":
+            root_step, root_alter = chord_root[0], 1 
+        elif chord_root[1] == "b":
+            root_step, root_alter = chord_root[0], -1
+        else:
+            root_step, root_alter = chord_root[0], 0
+        
+        chord_bass = splitted_chord_name[1] 
+        if len(chord_bass) == 1:
+           return root_step, root_alter, chord_bass, 0
+        elif chord_bass[1] == "#":
+           return root_step, root_alter, chord_bass[0], 1 
+        elif chord_bass[1] == "b":
+           return root_step, root_alter, chord_bass[0], -1
+        else:
+           return root_step, root_alter, chord_bass[0], 0
 
 def convertChordKind(chord_name: str):
     print("chord_name: "+chord_name)
@@ -69,6 +188,20 @@ def convertChordKind(chord_name: str):
         return 'major-seventh',None,'M7'
     elif chord_kind == 'mM7':
         return 'major-minor',None,'mM7'
+    
+    elif 'add' in chord_kind:
+        # getChordRootを使わない
+        add_note = chord_kind.split("add")[1]
+        root = chord_name.split("add")[0]
+
+        print("root: "+root)
+
+        if find_pitch_interval(root, add_note) == 2:
+            return 'add9',None,None
+        elif find_pitch_interval(root, add_note) == 1:
+            return 'add♭9',None,None
+        elif find_pitch_interval(root, add_note) == 3:
+            return 'add#9',None,None
     
     else:
         return chord_kind, None, None
@@ -235,41 +368,7 @@ def getDivisions(measures, measure_num):
             break
     return int(divisions)
 
-def getChordRootAndBass(chord_name: str): # -> tuple[str, int, str | None, int | None]:
-    splitted_chord_name = chord_name.split("/")
-    
-    # chord_name に Bassがない場合 ex. F#, Bb
-    if len(splitted_chord_name) == 1:
-        chord_root = splitted_chord_name[0]
-        if len(chord_root) == 1:
-            return chord_root, 0, None, None
-        elif chord_root[1] == "#":
-            return chord_root[0], 1, None, None
-        elif chord_root[1] == "b":
-            return chord_root[0], -1, None, None
-        else:
-            return chord_root[0], 0, None, None
-    else:
-        # chord_name に Bass がある場合 ex. F/B-
-        chord_root = splitted_chord_name[0]
-        if len(chord_root) == 1:
-            root_step, root_alter = chord_root, 0
-        elif chord_root[1] == "#":
-            root_step, root_alter = chord_root[0], 1 
-        elif chord_root[1] == "b":
-            root_step, root_alter = chord_root[0], -1
-        else:
-            root_step, root_alter = chord_root[0], 0
-        
-        chord_bass = splitted_chord_name[1] 
-        if len(chord_bass) == 1:
-           return root_step, root_alter, chord_bass, 0
-        elif chord_bass[1] == "#":
-           return root_step, root_alter, chord_bass[0], 1 
-        elif chord_bass[1] == "b":
-           return root_step, root_alter, chord_bass[0], -1
-        else:
-           return root_step, root_alter, chord_bass[0], 0
+
 
 def createHarmonyElement(chord_name, offset_duration):
     '''
