@@ -1,3 +1,5 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 import os
 from music21 import *
 from xml.etree import ElementTree as et  # mxlは非対応
@@ -262,7 +264,7 @@ def createHarmonyElement(chord_name, offset_duration):
     root_alter_elem.text = str(root_alter)
 
     kind = et.SubElement(harmony, 'kind')
-    musicxml_kind, degree_element = converChordKind(chord_name[1])
+    musicxml_kind, degree_element = convertChordKind(chord_name[1])
     kind.text = musicxml_kind
 
     if bass_name is not None:
