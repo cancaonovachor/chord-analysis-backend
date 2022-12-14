@@ -3,7 +3,7 @@ from io import StringIO
 import os
 
 def main():
-    score_name = 'chordslist.musicxml'
+    score_name = 'ChordAdd_chordslist.musicxml'
     head = 1
     tail = -1
     chord_list = getChordMinimumUnit(score_name, head=head, tail=tail, sameChordPass=0)
