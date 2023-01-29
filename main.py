@@ -26,7 +26,7 @@ CORS(app)
 
 UPLOAD_DIR = os.getenv("UPLOAD_DIR_PATH")
 
-CLOUD_STORAGE_BUCKET = os.getenv("CLOUD_STORAGE_BUCKET")
+CLOUD_STORAGE_BUCKET = str(os.getenv("CLOUD_STORAGE_BUCKET"))
 
 CLOUD_STORAGE_ENDPOINT = (
     'http://' + CLOUD_STORAGE_BUCKET + '.storage.googleapis.com')
