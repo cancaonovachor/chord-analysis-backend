@@ -21,7 +21,7 @@ load_dotenv(override=True)
 environment.set('autoDownload', 'allow')
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, supports_credentials=True)
 
 
 UPLOAD_DIR = os.getenv("UPLOAD_DIR_PATH")
@@ -60,6 +60,7 @@ def upload_blob(source_file_object, destination_blob_name):
     source_file_object.seek(0)
 
     return CLOUD_STORAGE_ENDPOINT + '/' + destination_blob_name
+
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
@@ -160,4 +161,4 @@ def after_request(response):
 
 if __name__ == "__main__":
     app.run(debug=bool(os.getenv('DEBUG')), host="0.0.0.0",
-            port=int(os.environ.get("PORT", 8080)))
+            port=int(os.environ.get("PORT", 8000)))
