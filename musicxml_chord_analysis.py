@@ -156,7 +156,8 @@ def get_alteration(note: str) -> int:
         return 0
 
 
-def getChordRootAndBass(chord_name: str) -> tuple[str, int, str | None, int | None]:
+# -> tuple[str, int, str | None, int | None]:
+def getChordRootAndBass(chord_name: str):
     # コード名からルート音とベース音を抽出する関数
     splitted_chord_name = chord_name.split("/")
     # chord_name に Bassがない場合 ex. F#, Bb
