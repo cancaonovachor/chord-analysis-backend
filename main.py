@@ -12,7 +12,7 @@ from google.oauth2 import service_account
 
 from dotenv import load_dotenv
 
-from musicxml_chord_analysis import getChordMinimumUnit, writeChord
+from chord_analysis import getChordMinimumUnit, writeChord
 from music21 import environment
 
 from io import StringIO
